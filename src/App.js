@@ -93,6 +93,7 @@ function App() {
   const [data, setData] = useState(() => [])
   const [query, setQuery] = useState('bitcoin...');
   const [timeOut, setTimeOut] = useState(null);
+  const [abortController, setAbortController] = useState(new AbortController())
 
   let onSend = async function(){
     try{
@@ -205,7 +206,7 @@ function App() {
         //console.log("input: ",input)
       }
       console.log("input: ", input)
-      let responseSign = await sdk.eth.ethSignTransaction(input)
+      let responseSign = await sdk.eth.ethSignTransaction(input, { signal: abortController.signal })
       //console.log("responseSign: ", responseSign)
       setSignedTx(responseSign.serialized)
     }catch(e){
@@ -397,6 +398,8 @@ function App() {
       setToken(null)
       setBlock(null)
       setContract(null)
+      abortController.abort()
+      setAbortController(new AbortController())
       onClose()
     }catch(e){
       console.error(e)
